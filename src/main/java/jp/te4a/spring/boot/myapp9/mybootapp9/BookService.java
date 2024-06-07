@@ -1,7 +1,8 @@
-package jp.te4a.spring.boot.myapp8.mybootapp8;
+package jp.te4a.spring.boot.myapp9.mybootapp9;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,23 +14,24 @@ public class BookService {
     @Autowired
     BookRepository bookRepository;
 
-    public BookForm create(BookForm bookForm){
-        bookForm.setId(bookRepository.getBookId());
+    public BookForm save(BookForm bookForm){
         BookBean bookBean = new BookBean();
         BeanUtils.copyProperties(bookForm, bookBean);
-        bookRepository.create(bookBean);
+        bookRepository.save(bookBean);
         return bookForm;
     }
 
     public BookForm update(BookForm bookForm){
         BookBean bookBean = new BookBean();
         BeanUtils.copyProperties(bookForm, bookBean);
-        bookRepository.update(bookBean);
+        bookRepository.save(bookBean);
         return bookForm;
     }
 
     public void delete(Integer id){
-        bookRepository.delete(id);
+        BookBean bookBean = new BookBean();
+        bookBean.setId(id);
+        bookRepository.delete(bookBean);
     }
 
     public List<BookForm> findAll(){
@@ -44,9 +46,11 @@ public class BookService {
     }
 
     public BookForm findOne(Integer id){
-        BookBean bookBean = bookRepository.findOne(id);
+        Optional<BookBean> bookBean = bookRepository.findById(id);
         BookForm bookForm = new BookForm();
-        BeanUtils.copyProperties(bookBean, bookForm);
+        bookBean.ifPresent(book ->{
+            BeanUtils.copyProperties(bookBean, bookForm);
+        });
         return bookForm;
     }
 }
